@@ -1,2 +1,4 @@
 # ignoring test files
 /testing/*
+
+**/__pycache__/*
