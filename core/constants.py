@@ -27,9 +27,9 @@ if not local:
 if local:
 
     # opening and getting our creds
-    credsFile = open("core/creds.json", "r")
-    creds = json.load(creds)
-    creds.close()
+    credsFile = open("secrets/creds.json", "r")
+    creds = json.load(credsFile)
+    credsFile.close()
 
     # reddit creds for praw
     reddit_username = creds['reddit']['username']
