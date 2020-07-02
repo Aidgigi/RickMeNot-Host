@@ -2,7 +2,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import scoped_session, sessionmaker, session
 from sqlalchemy.ext.declarative import declarative_base
 from core.models import Base
-from core.models import TestingModel
+from core.models import StatsTable, Blacklist
 import core.constants as const
 
 
@@ -36,3 +36,6 @@ class mainDB:
 
         print('[DATABASE] Tables Created!')
         return True
+
+
+db = mainDB(const.database_username, const.database_password, const.database_host, const.database_port, const.database_name)
