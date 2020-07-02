@@ -9,6 +9,7 @@ Base = declarative_base()
 class StatsTable(Base):
     __tablename__ = "BOT_STATISTICS"
 
+    id = Column(Integer, primary_key = True)
     total_roll_count = Column(BigInteger)
     biggest_roller = Column(String)
     redirects_used = Column(String)
@@ -25,3 +26,4 @@ class Blacklist(Base):
 
     id = Column(BigInteger, primary_key = True)
     subreddit = Column(String)
+    opt_reason = Column(String)
