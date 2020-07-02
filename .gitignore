@@ -1,4 +1,8 @@
 # ignoring test files
 **/testing/*
 
+# ignoring cache files
 **/__pycache__/*
+
+# ignoring secrets because...
+**/secrets/*
