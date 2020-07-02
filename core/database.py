@@ -3,6 +3,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, session
 from sqlalchemy.ext.declarative import declarative_base
 from core.models import Base
 from core.models import TestingModel
+import core.constants as const
 
 
 #"""This class represents the main db, and everything it may need to do"""
@@ -10,10 +11,10 @@ class mainDB:
 
     #our init function, to get everything started
     #initializing the database class
-    def __init__(self, username, password, host, database):
+    def __init__(self, username, password, host, port, database):
 
         # a string used for logging in
-        self.uri = f"postgresql://{username}:{password}@{host}:5432/{database}"
+        self.uri = f"postgresql://{username}:{password}@{host}:{str(port)}/{database}"
 
         #this logs into and creates a database instance
         self.engine = create_engine(self.uri)
