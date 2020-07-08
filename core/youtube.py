@@ -11,7 +11,7 @@ def returnId(url):
         idString = url.split('watch?v=')[1]
 
         if '&feature=' in idString:
-            return idStrinf.split('&feature=')[0]
+            return idString.split('&feature=')[0]
 
         else:
             return idString
@@ -21,4 +21,15 @@ def returnId(url):
         return False
 
 #getting data from the youtube video
-def getVidTitle(url):
+def getVidTitle(id):
+
+    # defining the things to send
+    params = {"format": "json", "url": f"https://www.youtube.com/watch?v={id}"}
+    url = "https://www.youtube.com/oembed"
+    query_string = urllib.parse.urlencode(params)
+    url = url + "?" + query_string
+
+    with urllib.request.urlopen(url) as response:
+        response_text = response.read()
+        data = json.loads(response_text.decode())
+        print(data['title'])
