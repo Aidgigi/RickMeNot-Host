@@ -39,7 +39,7 @@ def unDirect(url):
 
         #checking if the returned url equals the given one
         if request.url == url:
-            return 0
+            return url
 
         if request.url != url:
             return request.url

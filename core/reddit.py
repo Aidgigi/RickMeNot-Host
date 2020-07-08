@@ -1,5 +1,7 @@
 import core.constants as constants
 import core.requestor as rq
+import core.youtube as yt
+import core.titleFinder as tf
 import praw
 from prawcore.exceptions import RequestException, Forbidden, ServerError
 from praw.exceptions import APIException, ClientException
@@ -18,15 +20,22 @@ class RedditClass:
 
     def testing(self):
 
-        self.subredditStream = self.reddit.subreddit('all').stream.comments(skip_existing=True)
+        self.subredditStream = self.reddit.subreddit('mytestsubgoaway').stream.comments(skip_existing = True)
 
         for comment in self.subredditStream:
             urls = rq.urlSniffer(comment.body)
             if urls != False:
                 for url in urls:
                     unUrl = rq.unDirect(url)
-                    if unUrl != 0 and unUrl != False:
-                        print(unUrl)
+                    if unUrl != False:
+                        id = yt.returnId(unUrl)
+                        if id != False:
+                            title = yt.getVidTitle(id)
+                            if title != False:
+                                print(title)
+                                print(tf.confidenceCheck(title))
+
+
 
 
 

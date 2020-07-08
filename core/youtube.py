@@ -24,7 +24,13 @@ def getVidTitle(id):
     query_string = urllib.parse.urlencode(params)
     url = url + "?" + query_string
 
-    with urllib.request.urlopen(url) as response:
-        response_text = response.read()
-        data = json.loads(response_text.decode())
-        print(data['title'])
+    try:
+        with urllib.request.urlopen(url) as response:
+            response_text = response.read()
+            data = json.loads(response_text.decode())
+            return data['title']
+
+    # excepting any errors
+    except Exception as e:
+        print(f"[YOUTUBE] Error! {e}")
+        return False
