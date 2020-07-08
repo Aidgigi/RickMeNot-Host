@@ -1,0 +1,6 @@
+praw
+sqlalchemy
+datetime
+timeloop
+python-Levenshtein
+fuzzywuzzy
