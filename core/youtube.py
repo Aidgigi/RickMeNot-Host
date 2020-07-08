@@ -1,23 +1,24 @@
-import requests
-from bs4 import BeautifulSoup as bs
-import time
-import simplejson
+import urllib.request
+import json
+import urllib
+import pprint
+
+def returnId(url):
+
+    #making sure this is a youtube video
+    if 'https://www.youtube.com/watch?v' in url:
+
+        idString = url.split('watch?v=')[1]
+
+        if '&feature=' in idString:
+            return idStrinf.split('&feature=')[0]
+
+        else:
+            return idString
+
+    #isnt a youtube video
+    if 'https://www.youtube.com/watch?v' not in url:
+        return False
 
 #getting data from the youtube video
-def getVidInfo(url):
-
-    #timing shit
-    timeStart = time.time()
-
-    id = 'KQEOBZLx-Z8'
-    url = 'http://gdata.youtube.com/feeds/api/videos/%s?alt=json&v=2' % id
-
-    json = simplejson.load(urllib.urlopen(url))
-
-    title = json['entry']['title']['$t']
-    author = json['entry']['author'][0]['name']
-
-    timeEnd = time.time()
-    print(f"That took {timeEnd - timeStart} seconds.")
-
-    return "id:%s\nauthor:%s\ntitle:%s" % (id, author, title)
+def getVidTitle(url):
