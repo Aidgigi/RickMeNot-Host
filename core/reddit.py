@@ -18,26 +18,55 @@ class RedditClass:
         print("\'Reddit\' instance initialized!")
 
 
+    # a function for crafting a comment to be sent to a user
+    def commentConstructor(self, comment, url, title, confidence, multipleFlag):
+
+        # this function will use different arguments like the url, confidence level, and more to create a comment to be sent to the rickroller
+
+        # checking if the link has multiple rick rolls
+        if multipleFlag == False:
+
+            # checking the confidence level and creating a fitting comment
+            if confidence >= 85:
+                head = "Caution! This comment contains a YouTube video that is a rickroll! "
+
+            if confidence >= 70 and confidence < 85:
+                head = "Caution! I have detected a YouTube video that appears to be a rickroll in this comment! "
+
+            if confidence >= 60 and confidence < 70:
+                head = "Caution! The link in this comment is a YouTube video that may be a rickroll! "
+
+            # line expressing certainty
+            certainty = f"I am {confidence}% confident of this."
+            # showing where the link redirects
+            linkStatement = f"\n\nThe link's destination is [{url}]({url}), a YouTube video with a title of: \"{title}\"."
+
+            footnote = f"\n^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit r/RickMeNot. Please consider donating to me creator )[^here.](https://www.paypal.me/aidanginise1)"
+
+            return head + certainty + linkStatement + footnote
+
+
+        # multipleflag is true
+        if multipleFlag == True:
+            print(True)
+
+
     def testing(self):
 
-        self.subredditStream = self.reddit.subreddit('mytestsubgoaway').stream.comments(skip_existing = True)
+        for comment in self.reddit.subreddit('mytestsubgoaway').comments(limit = None):
+            try:
+                urls = rq.urlSniffer(comment.body)
+                if urls != False:
+                    for url in urls:
+                        unUrl = rq.unDirect(url)
+                        if unUrl != False:
+                            id = yt.returnId(unUrl)
+                            if id != False:
+                                title = yt.getVidTitle(id)
+                                if title != False:
+                                    print(commentConstructor(comment, url, title, tf.confidenceCheck(title), False))
 
-        for comment in self.subredditStream:
-            urls = rq.urlSniffer(comment.body)
-            if urls != False:
-                for url in urls:
-                    unUrl = rq.unDirect(url)
-                    if unUrl != False:
-                        id = yt.returnId(unUrl)
-                        if id != False:
-                            title = yt.getVidTitle(id)
-                            if title != False:
-                                print(title)
-                                print(tf.confidenceCheck(title))
-
-
-
-
-
+            except Exception as e:
+                print(e)
 
 red = RedditClass(constants.reddit_client_id, constants.reddit_client_secret, constants.reddit_password, constants.reddit_user_agent, constants.reddit_username)
