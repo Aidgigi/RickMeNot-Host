@@ -41,7 +41,7 @@ class RedditClass:
             # showing where the link redirects
             linkStatement = f"\n\nThe link's destination is [{url}]({url}), a YouTube video with a title of: \"{title}\"."
 
-            footnote = f"\n^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit r/RickMeNot. Please consider donating to me creator )[^here.](https://www.paypal.me/aidanginise1)"
+            footnote = f"\n\n^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit) ^[r/RickMeNot.](https://reddit.com/r/RickMeNot) ^( Please consider donating to my creator) ^[here.](https://www.paypal.me/aidanginise1)"
 
             return head + certainty + linkStatement + footnote
 
@@ -53,18 +53,21 @@ class RedditClass:
 
     def testing(self):
 
-        for comment in self.reddit.subreddit('mytestsubgoaway').comments(limit = None):
+        self.subreddit = self.reddit.subreddit('mytestsubgoaway')
+
+        for comment in self.subreddit.stream.comments(skip_existing = True):
             try:
-                urls = rq.urlSniffer(comment.body)
-                if urls != False:
-                    for url in urls:
-                        unUrl = rq.unDirect(url)
-                        if unUrl != False:
-                            id = yt.returnId(unUrl)
-                            if id != False:
-                                title = yt.getVidTitle(id)
-                                if title != False:
-                                    print(commentConstructor(comment, url, title, tf.confidenceCheck(title), False))
+                if comment.author != 'RickMeNot':
+                    urls = rq.urlSniffer(comment.body)
+                    if urls != False:
+                        for url in urls:
+                            unUrl = rq.unDirect(url)
+                            if unUrl != False:
+                                id = yt.returnId(unUrl)
+                                if id != False:
+                                    title = yt.getVidTitle(id)
+                                    if title != False:
+                                        comment.reply(self.commentConstructor(comment, unUrl, title, tf.confidenceCheck(title), False))
 
             except Exception as e:
                 print(e)
