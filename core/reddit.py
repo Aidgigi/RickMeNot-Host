@@ -48,7 +48,7 @@ class RedditClass:
             self.body + =  "\n\nThese are as follows:\n\n"
 
             self.body + =  ''.join([f"[{self.unUrls[i]}]({self.unUrls[i]}) - Video with title {self.titles[i]}. I am {self.confidences[i]}%"\
-            f" confident this is a rickroll.\n\n" for i in enumerate(urls)])
+            f" confident this is a rickroll.\n\n" for i in enumerate(self.urls)])
 
         # adding final shit
         self.body + =  "^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit) ^r/RickMeNot. ^(Please consider donating to my creator) ^[here.](https://www.paypal.me/aidanginise1)"
