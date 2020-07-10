@@ -1,36 +1,17 @@
-import urllib.request
 import json
-import urllib
+import urllib, urllib.request
 
 def returnId(url):
-
-    #making sure this is a youtube video
-    if 'https://www.youtube.com/watch?v=' in url:
-        idString = url.split('watch?v=')[1]
-
-        if '&feature=' in idString:
-            return idString.split('&feature=')[0]
-        else:
-            return idString
-    #isnt a youtube video
-    if 'https://www.youtube.com/watch?v=' not in url:
-        return False
+    return url.split('watch?v=')[1][:11] if 'https://www.youtube.com/watch?v=' in url else False
 
 #getting data from the youtube video
 def getVidTitle(id):
     # defining the things to send
     params = {"format": "json", "url": f"https://www.youtube.com/watch?v={id}"}
-    url = "https://www.youtube.com/oembed"
-    query_string = urllib.parse.urlencode(params)
-    url = url + "?" + query_string
+    url = f"https://www.youtube.com/oembed?{urllib.parse.urlencode(params)}"
 
     try:
-        with urllib.request.urlopen(url) as response:
-            response_text = response.read()
-            data = json.loads(response_text.decode())
-            return data['title']
-
+        return json.loads(urllib.request.urlopen(url).read().decode())['title']
     # excepting any errors
-    except Exception as e:
-        print(f"[YOUTUBE] Error! {e}")
+    except Exception:
         return False
