@@ -51,7 +51,7 @@ class RedditClass:
             f" confident this is a rickroll.\n\n" for i in enumerate(self.urls)])
 
         # adding final shit
-        self.body +=  "^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit) ^r/RickMeNot. ^(Please consider donating to my creator) ^[here.](https://www.paypal.me/aidanginise1)"
+        self.body +=  "^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit) [^r/RickMeNot](reddit.com/r/RickMeNot). ^(Please consider donating to my creator) ^[here.](https://www.paypal.me/aidanginise1)"
 
         # and finally, return it
         return f"{self.head}{self.body}"
