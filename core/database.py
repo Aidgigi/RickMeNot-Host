@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from core.models import Base
+from core.models import Stats, RollLog, Blacklist
 import core.constants as const
+import json
 
 
 #"""This class represents the main db, and everything it may need to do"""
@@ -16,7 +18,7 @@ class mainDB:
 
         #this logs into and creates a database instance
         self.engine = create_engine(self.uri)
-        self.db = scoped_session(sessionmaker(bind=self.engine))
+        self.db = scoped_session(sessionmaker(bind = self.engine))
         self.meta = MetaData(self.engine)
 
         #making a base
@@ -27,12 +29,37 @@ class mainDB:
     def createTabs(self):
 
         #reflecting the db locally
-        self.meta.reflect(bind=self.engine)
+        self.meta.reflect(bind = self.engine)
 
         #checking to make sure that the tables dont exist, if a table doesnt exist, it's made
-        self.Base.metadata.create_all(self.engine, self.Base.metadata.tables.values(), checkfirst=True)
+        self.Base.metadata.create_all(self.engine, self.Base.metadata.tables.values(), checkfirst = True)
 
         print('[DATABASE] Tables Created!')
         return True
+
+
+    # a function for logging a rickroll
+    def logRoll(self, user, target, subreddit, url):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        #defining our tables
+        self.rollLogTable = self.meta.tables['ROLL_LOG_TABLE']
+
+        roll = {
+            "roller": user,
+            "target": target,
+            "subreddit": subreddit,
+            "url": url
+        }
+
+        self.db.add(RollLog(
+            data = json.dumps(roll)
+        ))
+
+        self.db.commit()
+
+
 
 db = mainDB(const.database_username, const.database_password, const.database_host, const.database_port, const.database_name)
