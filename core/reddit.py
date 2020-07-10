@@ -59,7 +59,7 @@ class RedditClass:
     def commentStream(self):
         self.subreddit = self.reddit.subreddit('mytestsubgoaway')
 
-        for comment in subreddit.stream.comments(skip_existing = True):
+        for comment in self.subreddit.stream.comments(skip_existing = True):
             if comment.author != 'RickMeNot':
                 try:
                     self.urls = rq.urlSniffer(comment.body)
