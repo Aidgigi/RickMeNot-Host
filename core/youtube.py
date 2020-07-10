@@ -13,5 +13,5 @@ def getVidTitle(id):
     try:
         return json.loads(urllib.request.urlopen(url).read().decode())['title']
     # excepting any errors
-    except Exception as e:
+    except Exception:
         return False
