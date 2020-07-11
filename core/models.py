@@ -15,11 +15,28 @@ class Stats(Base):
     subreddit_board = Column(String)
     video_board = Column(String)
 
-class RollLog(Base):
-    __tablename__ = "ROLL_LOG_TABLE"
 
-    id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    data = Column(String)
+class RollerLog(Base):
+    __tablename__ = "ROLLER_LOG_TABLE"
+
+    id = Column(Integer, Sequence('1'), primary_key=True)
+    roller = Column(String)
+    target = Column(String)
+
+
+class SubredditLog(Base):
+    __tablename__ = "SUBREDDIT_LOG_TABLE"
+
+    id = Column(Integer, Sequence('2'), primary_key=True)
+    subreddit = Column(String)
+
+
+class URLog(Base):
+    __tablename__ = "URL_LOG_TABLE"
+
+    id = Column(Integer, Sequence('3'), primary_key=True)
+    url = Column(String)
+
 
 # this table defines subreddits that are on the blacklist
 class Blacklist(Base):

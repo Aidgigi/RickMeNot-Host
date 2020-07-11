@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from core.models import Base
-from core.models import Stats, RollLog, Blacklist
+from core.models import *
+from core.helpers import unique, countOcc, dictSort
 import core.constants as const
 import json
 
@@ -44,21 +45,78 @@ class mainDB:
         #reflecting the db locally
         self.meta.reflect(bind = self.engine)
 
-        #defining our tables
-        self.rollLogTable = self.meta.tables['ROLL_LOG_TABLE']
+        self.db.add(RollerLog(
+            roller = user,
+            target = target
+        ))
 
-        roll = {
-            "roller": user,
-            "target": target,
-            "subreddit": subreddit,
-            "url": url
-        }
+        self.db.add(SubredditLog(
+            subreddit = subreddit
+        ))
 
-        self.db.add(RollLog(
-            data = json.dumps(roll)
+        self.db.add(URLog(
+            url = url
         ))
 
         self.db.commit()
+        print("Success!")
+
+
+
+    # this function will take what's in the roll logs and compile the scoreboards
+    def scoreboardCompile(self):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        #getting our rows
+        self.rollers = self.db.query(RollerLog).all()
+        self.subreddits = self.db.query(SubredditLog).all()
+        self.urls = self.db.query(URLog).all()
+
+        #making some blank lists
+        rollerList = []
+        #targetList = []
+        subredditList = []
+        urlList = []
+
+        #looping through each row, compiling the data
+        for log in self.rollers:
+            rollerList.append(log.roller)
+            #targetList.append(log.target)
+
+        for log in self.subreddits:
+            subredditList.append(log.subreddit)
+
+        for log in self.urls:
+            urlList.append(log.url)
+
+        # these three lines extract uniquie list occurances, make a dictionary containing the number of times each unique elements occurs
+        # and then sorts it from greatest to least
+        rollerBoard = dictSort(countOcc(rollerList, unique(rollerList)))
+        subredditBoard = dictSort(countOcc(subredditList, unique(subredditList)))
+        urlBoard = dictSort(countOcc(urlList, unique(urlList)))
+        print(rollerBoard, subredditBoard, urlBoard)
+
+
+
+
+
+    # a function for wiping the logs
+    def wipeLogs(self):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        #getting our rows
+        self.rollers = self.db.query(RollerLog).delete()
+        self.subreddits = self.db.query(SubredditLog).delete()
+        self.urls = self.db.query(URLog).delete()
+
+        self.db.commit()
+        print(f"[DATABASE] Message! {self.rollers+self.subreddits+self.urls} rows deleted successfully!")
+
+
 
 
 
