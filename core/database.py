@@ -214,27 +214,6 @@ class mainDB:
         for i in range(num):
             self.logRoll(randint(0, 300), randint(0, 300), random.choice(subreddit), random.choice(url))
 
-    def smallTest(self):
-
-        #reflecting the db locally
-        self.meta.reflect(bind = self.engine)
-
-        # getting the boards
-        self.boards = self.db.query(Stats).all()
-
-        if len(self.boards) == 0:
-            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
-            # returning 0 provides deeper error handling and prevents the rest of the function from running
-            return 0
-
-        self.boards = self.boards[0]
-
-        print(len(json.loads(self.boards.roller_board)))
-
-
-
-
-
 
 
 
