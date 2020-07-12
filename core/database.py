@@ -2,9 +2,10 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
 from core.models import Base
 from core.models import *
-from core.helpers import unique, countOcc, dictSort
+from core.helpers import unique, countOcc, dictSort, dictMerge
 import core.constants as const
-import json
+import json, random
+from random import randint
 
 
 #"""This class represents the main db, and everything it may need to do"""
@@ -45,6 +46,18 @@ class mainDB:
         #reflecting the db locally
         self.meta.reflect(bind = self.engine)
 
+        # we need this to update the roll count
+        self.boards = self.db.query(Stats).all()
+        # performing some checks to make sure we dont work with bad data
+        if len(self.boards) == 0:
+            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
+            # returning 0 provides deeper error handling and prevents the rest of the function from running
+            self.boards = 0
+
+        self.boards = self.boards[0]
+
+        self.boards.roll_count += 1
+
         self.db.add(RollerLog(
             roller = user,
             target = target
@@ -59,7 +72,34 @@ class mainDB:
         ))
 
         self.db.commit()
-        print("Success!")
+        print(f"[DATABASE] Message! Logged a roll by user {user}!")
+
+
+    # this function will return the current scoreboards
+    def scoreboardExtract(self):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        self.boards = self.db.query(Stats).all()
+
+        if len(self.boards) == 0:
+            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
+            # returning 0 provides deeper error handling and prevents the rest of the function from running
+            return 0
+
+        self.boards = self.boards[0]
+
+        # checks passed, moving on
+
+        return {
+            "boards": {
+                'roll_count': self.boards.roll_count,
+                'roller_board': json.loads(self.boards.roller_board),
+                'subreddit_board': json.loads(self.boards.subreddit_board),
+                'video_board': json.loads(self.boards.video_board)
+            }
+        }
 
 
 
@@ -96,10 +136,31 @@ class mainDB:
         rollerBoard = dictSort(countOcc(rollerList, unique(rollerList)))
         subredditBoard = dictSort(countOcc(subredditList, unique(subredditList)))
         urlBoard = dictSort(countOcc(urlList, unique(urlList)))
-        print(rollerBoard, subredditBoard, urlBoard)
 
+        # merging dicts with the current boards
+        currentBoards = self.scoreboardExtract()
 
+        rollerBoard = dictMerge(rollerBoard, currentBoards['boards']['roller_board'])
+        subredditBoard = dictMerge(subredditBoard, currentBoards['boards']['subreddit_board'])
+        urlBoard = dictMerge(urlBoard, currentBoards['boards']['video_board'])
 
+        # getting the board
+        self.boards = self.db.query(Stats).all()
+
+        if len(self.boards) == 0:
+            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
+            # returning 0 provides deeper error handling and prevents the rest of the function from running
+            return 0
+
+        self.boards = self.boards[0]
+
+        self.boards.roller_board = json.dumps(dictSort(rollerBoard))
+        self.boards.subreddit_board = json.dumps(dictSort(subredditBoard))
+        self.boards.video_board = json.dumps(dictSort(urlBoard))
+
+        # committing our changes
+        self.db.commit()
+        self.wipeLogs()
 
 
     # a function for wiping the logs
@@ -115,6 +176,63 @@ class mainDB:
 
         self.db.commit()
         print(f"[DATABASE] Message! {self.rollers+self.subreddits+self.urls} rows deleted successfully!")
+
+
+    # this function will trim each scoreboard, leaving the top 100 entries
+    def scoreboardTrim(self):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        # getting the boards
+        self.boards = self.db.query(Stats).all()
+
+        if len(self.boards) == 0:
+            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
+            # returning 0 provides deeper error handling and prevents the rest of the function from running
+            return 0
+
+        self.boards = self.boards[0]
+
+        # getting the first 100 elements
+        self.boards.roller_board = json.dumps({A:N for (A,N) in [x for x in dictSort(json.loads(self.boards.roller_board)).items()][:100]})
+        self.boards.subreddit_board = json.dumps({A:N for (A,N) in [x for x in dictSort(json.loads(self.boards.subreddit_board)).items()][:100]})
+        self.boards.video_board = json.dumps({A:N for (A,N) in [x for x in dictSort(json.loads(self.boards.video_board)).items()][:100]})
+
+        self.db.commit()
+
+
+
+    # a function for writing some test rows
+    def testLogs(self, num):
+
+        username1 = ['aidgigi', 'aidgigi', 'spez', 'ohbarmer', 'joe']
+        username2 = ['me', 'me', 'tomato', 'godzilla']
+        subreddit = ['mytestsubgoaway', 'memes', 'fortnite']
+        url = ['https://obama.com', 'https://youtube.com', 'https://twitter.com']
+
+        for i in range(num):
+            self.logRoll(randint(0, 300), randint(0, 300), random.choice(subreddit), random.choice(url))
+
+    def smallTest(self):
+
+        #reflecting the db locally
+        self.meta.reflect(bind = self.engine)
+
+        # getting the boards
+        self.boards = self.db.query(Stats).all()
+
+        if len(self.boards) == 0:
+            print("[DATABASE] Warning! Stats cannot be extracted (empty)!")
+            # returning 0 provides deeper error handling and prevents the rest of the function from running
+            return 0
+
+        self.boards = self.boards[0]
+
+        print(len(json.loads(self.boards.roller_board)))
+
+
+
 
 
 

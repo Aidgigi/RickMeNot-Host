@@ -10,7 +10,7 @@ class Stats(Base):
     __tablename__ = "BOT_STATISTICS_TABLE"
 
     id = Column(BigInteger, primary_key = True)
-    roll_count = Column(String)
+    roll_count = Column(BigInteger)
     roller_board = Column(String)
     subreddit_board = Column(String)
     video_board = Column(String)
