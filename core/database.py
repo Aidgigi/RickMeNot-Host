@@ -202,6 +202,9 @@ class mainDB:
         self.db.commit()
 
 
+    # this function will add a subreddit to the blacklist
+
+
 
     # a function for writing some test rows
     def testLogs(self, num):

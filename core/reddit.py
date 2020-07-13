@@ -1,4 +1,6 @@
-import praw
+import praw, time
+from psaw import PushshiftAPI
+from core.pushshift import getComments
 from prawcore.exceptions import Forbidden
 from praw.exceptions import APIException, ClientException
 import core.constants as constants
@@ -17,6 +19,8 @@ class RedditClass:
                     username = username)
 
         print("\'Reddit\' instance initialized!")
+
+        self.pReddit = PushshiftAPI()
 
     # a function for crafting a comment to be sent to a user
     def commentConstructor(self, urls):
@@ -56,28 +60,25 @@ class RedditClass:
         # and finally, return it
         return f"{self.head}{self.body}"
 
+    # this function checks a comment for a rickroll, and responds if needed
+    def check(self, comment):
+        print(True)
+
+
     def commentStream(self):
-        self.subreddit = self.reddit.subreddit('mytestsubgoaway')
 
-        for comment in self.subreddit.stream.comments(skip_existing = True):
-            if comment.author != 'RickMeNot':
-                try:
-                    self.urls = rq.urlSniffer(comment.body)
-                    if self.urls: comment.reply(self.commentConstructor(self.urls))
-                except Exception as e:
-                    self.err = "[STREAM] "
+        # defining a search time, 2 minutes in the past
+        startSearch = int(round(time.time())) - 120
 
-                    if isinstance(e, APIException):
-                        self.err +=  "API error occurred:"
-                    elif isinstance(e, ClientException):
-                        self.err +=  "Client-side error occurred:"
-                    elif isinstance(e, Forbidden):
-                        self.err +=  f"Bot is banned from subreddit {comment.subreddit}:"
-                    else:
-                        self.err +=  "Unknown error occurred:"
+        comments = getComments('all', 1000, startSearch)
 
-                    self.err +=  f"{e}"
+        print(comments)
 
-                    print(self.err)
+        for comment in comments:
+            print(comment)
+
+
+
+
 
 red = RedditClass(constants.reddit_client_id, constants.reddit_client_secret, constants.reddit_password, constants.reddit_user_agent, constants.reddit_username)
