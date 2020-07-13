@@ -1,34 +1,31 @@
 import requests
-
-def getComments(limit, after):
-
-    url = f"https://api.pushshift.io/reddit/search/comment?after={after}&?limit={limit}"
-    #params = {"limit": str(limit), "after": str(after)}
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"}
-
-    try:
-        response = requests.get(url, headers = headers)
-
-    except Exception as e:
-        print(f"[PUSHSHIFT] Error! {e}!")
-        return False
-
-    # error handling
-    response.raise_for_status()
-    jsonData = response.json()
-
-    if 'data' in jsonData:
-
-        # blank list for holding comments
-        comments = []
-
-        for comment in jsonData['data']:
-            print(comment['body']+'\n')
-            comments.append(comment['id'])
-
-        return len(comments)
+import time
+from datetime import datetime, timedelta, timezone
 
 
-    else:
-        print("[PUSHSHIFT] Warning! Bad Data!")
-        return False
+endEpoch = int((datetime.utcnow().replace(tzinfo=timezone.utc) - timedelta(hours=4)).timestamp())
+
+
+def findComments():
+    # defining some things
+    previousEpoch = int(datetime.utcnow().timestamp())
+    url = "https://api.pushshift.io/reddit/comment/search?&limit=1000&sort=desc&q=http|https|youtube&before="
+    breakOut = False
+
+    # the loop
+    while True:
+        newUrl = url + str(previousEpoch)
+        json = requests.get(newUrl, headers = {'User-Agent': "RickMeNot v1.0.3 by u/Aidgigi"})
+        objects = json.json()['data']
+        if len(objects) == 0:
+            break
+        for comment in objects:
+            previousEpoch = comment['created_utc'] - 1
+
+            print(f"{datetime.utcnow().timestamp() - comment['created_utc']} seconds old")
+
+            if previousEpoch < endEpoch:
+                breakOut = True
+                break
+        if breakOut:
+            break

@@ -1,5 +1,4 @@
-import praw, time
-from psaw import PushshiftAPI
+import praw, time, asyncio
 from core.pushshift import getComments
 from prawcore.exceptions import Forbidden
 from praw.exceptions import APIException, ClientException
@@ -20,7 +19,6 @@ class RedditClass:
 
         print("\'Reddit\' instance initialized!")
 
-        self.pReddit = PushshiftAPI()
 
     # a function for crafting a comment to be sent to a user
     def commentConstructor(self, urls):
@@ -64,18 +62,13 @@ class RedditClass:
     def check(self, comment):
         print(True)
 
+    # this function will handle checking the comments
+    def commentStream(self, freq):
 
-    def commentStream(self):
+        # defining our subreddit and submissions object
+        self.subreddit = self.reddit.subreddit('all')
 
-        # defining a search time, 2 minutes in the past
-        startSearch = int(round(time.time())) - 120
 
-        comments = getComments('all', 1000, startSearch)
-
-        print(comments)
-
-        for comment in comments:
-            print(comment)
 
 
 
