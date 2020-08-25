@@ -6,3 +6,4 @@ timeloop
 python-Levenshtein
 fuzzywuzzy
 timeloop
+sseclient

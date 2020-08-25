@@ -1,31 +1,51 @@
 import requests
 import time
+import re
+import json
+from sseclient import SSEClient
 from datetime import datetime, timedelta, timezone
 
 
-endEpoch = int((datetime.utcnow().replace(tzinfo=timezone.utc) - timedelta(hours=4)).timestamp())
+prev = ""
 
-
-def findComments():
+def returnBatch():
+    global prev
     # defining some things
-    previousEpoch = int(datetime.utcnow().timestamp())
-    url = "https://api.pushshift.io/reddit/comment/search?&limit=1000&sort=desc&q=http|https|youtube&before="
+    previousEpoch = int(datetime.utcnow().replace(tzinfo = timezone.utc).timestamp())
+    terms = "http|https|youtube"
+    after = "1h"
+    filter = "author,id,body,subreddit,created_utc"
+    sort = "created_utc:asc"
+    url = f"https://api.pushshift.io/reddit/comment/search/?q={terms}&sort={sort}&after={after}&filter={filter}"
     breakOut = False
 
-    # the loop
-    while True:
-        newUrl = url + str(previousEpoch)
-        json = requests.get(newUrl, headers = {'User-Agent': "RickMeNot v1.0.3 by u/Aidgigi"})
-        objects = json.json()['data']
-        if len(objects) == 0:
-            break
-        for comment in objects:
-            previousEpoch = comment['created_utc'] - 1
+    json = requests.get(url, headers = {'User-Agent': "RickMeNot v1.0.3 by u/Aidgigi"})
+    objects = json.json()['data']
+    if len(objects) == 0:
+        return 0
+    for comment in objects:
+        print(f"{comment}\n")
 
-            print(f"{datetime.utcnow().timestamp() - comment['created_utc']} seconds old")
+    lc = objects[-1]
+    print(f"Last comment is {int(datetime.utcnow().timestamp()) - int(lc['created_utc'])} seconds old.")
 
-            if previousEpoch < endEpoch:
-                breakOut = True
-                break
-        if breakOut:
-            break
+
+
+
+def findComments2():
+
+    # defining some things
+    url = "http://stream.pushshift.io/?type=comments&filter="
+    params = {'Accept-Encoding': 'gzip', 'User-Agent': 'RickMeNot v1.0.3 by u/Aidgigi'}
+    fields = 'body,id,link_id,created_utc'
+    comments = SSEClient(url + fields, params = params)
+
+    for comment in comments:
+        try:
+            comment = json.loads(comment.data)
+            urls = re.findall(r'(https?://\S+)', comment['body'])
+            if len(urls) != 0:
+                print(comment['body'] + '\n')
+
+        except Exception as e:
+            print(e)
