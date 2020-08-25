@@ -24,36 +24,23 @@ class RedditClass:
 
 
     # a function for crafting a comment to be sent to a user
-    def commentConstructor(self, urls):
+    def commentConstructor(self, url):
         # initialize our head
         head = "Caution! "
 
-        ul = len(urls)
-
-        unUrls = [rq.unDirect(u) for u in urls if rq.unDirect(u)]
-        ids = [yt.returnId(u) for u in unUrls if yt.returnId(u)]
-        titles = [yt.getVidTitle(id) for id in ids if yt.getVidTitle(id)]
-        confidences = [tf.confidenceCheck(t) for t in titles]
+        unUrl = rq.unDirect(url)
+        id = yt.returnId(unUrl)
+        title = yt.getVidTitle(id)
+        confidence = tf.confidenceCheck(title)
 
         # this is cancer
-        head +=  f"This comment contains {ul} youtube videos which are likely to be rickrolls!" if ul > 1 else \
-        "This comment contains a youtube video that is a rickroll!" if confidences[0] >=  85 else \
-        "I have detected a YouTube video that appears to be a rickroll in this comment!" if 60 <=  confidences[0] < 70 else \
-        "The link in this comment is a YouTube video that may be a rickroll!" if 60 <=  confidences[0] < 70 else None
+        head += "This comment contains a youtube video that is a rickroll!" if confidence >=  80 else \
+        "I have detected a YouTube video that appears to be a rickroll in this comment!" if 70 <=  confidence < 80 else \
+        "The link in this comment is a YouTube video that may be a rickroll!" if 60 <=  confidence < 70 else None
 
         # initializing our body
-        body = ""
-
-        # if only one url
-        if ul ==  1:
-            body +=  f" I am {confidences[0]}% confident of this.\n\n"\
-            f"The link's destination is [{unUrls[0]}]({unUrls[0]}), a YouTube video with a title of: \"{titles[0]}\".\n\n"
-        # this is also cancer
-        else:
-            body +=  "\n\nThese are as follows:\n\n"
-
-            body +=  ''.join([f"[{unUrls[i]}]({unUrls[i]}) - Video with title {titles[i]}. I am {confidences[i]}%"\
-            f" confident this is a rickroll.\n\n" for i in enumerate(urls)])
+        body = f" I am {confidence}% confident of this.\n\n"\
+        f"The link's destination is [{unUrl}]({unUrl}), a YouTube video with a title of: \"{title}\".\n\n"
 
         # adding final shit
         body +=  "^(I am a Reddit bot with the sole purpose of preventing rickrolls. For me information on me and how I work, visit) ^[r/RickMeNot](https://www.reddit.com/r/RickMeNot). ^(Please consider supporting my development) ^[here.](https://cash.app/$AidanGinise)"
@@ -78,7 +65,7 @@ class RedditClass:
         self.id = ""
 
         # getting a comments generator
-        gen = list(self.ps.search_comments(after = int(start), after_id = self.id, q = 'https', filter = fields, limit = 100000))
+        gen = list(self.ps.search_comments(after = int(start), after_id = self.id, q = query, filter = fields, limit = 100000))
         if len(gen) != 0:
             self.id = gen[-1].id
             for comment in gen:
@@ -90,11 +77,6 @@ class RedditClass:
                         if (title := yt.getVidTitle(data)):
                             print(title)
                             print(f"{tf.confidenceCheck(title)}% sure I found a rickroll.")
-
-
-
-
-
 
 
 
